@@ -34,7 +34,13 @@ type Action =
 	| SearchRepositoriesSuccessAction
 	| SearchRepositoriesFailAction;
 
-function SearchRepositories(term: string) {
+const initialState = {
+	loading: false,
+	error: null,
+	data: [],
+};
+
+function searchRepositories(term: string) {
 	return async function (dispatch: Dispatch<Action>) {
 		dispatch({ type: ActionType.SEARCH_REPOSOTORIES });
 		try {
@@ -62,7 +68,10 @@ function SearchRepositories(term: string) {
 	};
 }
 
-function reducer(state: RepositoriesState, action: Action): RepositoriesState {
+function reducer(
+	state: RepositoriesState = initialState,
+	action: Action
+): RepositoriesState {
 	if (action.type === ActionType.SEARCH_REPOSOTORIES)
 		return { ...state, loading: true };
 	if (action.type === ActionType.SEARCH_REPOSOTORIES_SUCCESS)
@@ -73,7 +82,8 @@ function reducer(state: RepositoriesState, action: Action): RepositoriesState {
 			loading: false,
 			error: action.payload.error,
 		};
-	throw new Error(`The action type doesn't exist.`);
+	return state;
 }
 
+export { searchRepositories };
 export default reducer;
