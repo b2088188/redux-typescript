@@ -1,3 +1,6 @@
+import axios from "axios";
+import { Dispatch } from "redux";
+
 type RepositoriesState = {
 	loading: boolean;
 	error: string | null;
@@ -30,6 +33,34 @@ type Action =
 	| SearchRepositoriesAction
 	| SearchRepositoriesSuccessAction
 	| SearchRepositoriesFailAction;
+
+function SearchRepositories(term: string) {
+	return async function (dispatch: Dispatch<Action>) {
+		dispatch({ type: ActionType.SEARCH_REPOSOTORIES });
+		try {
+			const { data } = await axios.get(
+				"https://registry.npmjs.org/-/v1/search",
+				{
+					params: {
+						text: term,
+					},
+				}
+			);
+			const names = data.objects.map((el: any) => {
+				return el.package.name;
+			});
+			dispatch({
+				type: ActionType.SEARCH_REPOSOTORIES_SUCCESS,
+				payload: { data: names },
+			});
+		} catch (err) {
+			dispatch({
+				type: ActionType.SEARCH_REPOSOTORIES_FAIL,
+				payload: { error: err.message },
+			});
+		}
+	};
+}
 
 function reducer(state: RepositoriesState, action: Action): RepositoriesState {
 	if (action.type === ActionType.SEARCH_REPOSOTORIES)
